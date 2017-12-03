@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"strings"
 
@@ -22,11 +23,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintln(w, "<html>Hello there!<br><br>")
 
+	var ip string
+
 	if strings.Contains(r.RemoteAddr, ":") {
-		fmt.Fprintf(w, "IP: %s<br>", strings.Split(r.RemoteAddr, ":")[0])
+		ip = strings.Split(r.RemoteAddr, ":")[0]
+
+		fmt.Fprintf(w, "IP: %s<br>", ip)
 		fmt.Fprintf(w, "Port: %s<br>", strings.Split(r.RemoteAddr, ":")[1])
 	} else {
 		fmt.Fprintf(w, "RemoteAddr: %s<br>", r.RemoteAddr)
+	}
+
+	if hosts, err := net.LookupAddr(ip); err != nil {
+		for h := range(hosts) {
+			fmt.Fprintf(w, "Host: %s<br>", h)
+		}
 	}
 
 	fmt.Fprintf(w, "<br>Headers:</br>")
