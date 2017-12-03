@@ -11,6 +11,9 @@ import (
 
 func main() {
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/ip", ipHandler)
+	http.HandleFunc("/ua", uaHandler)
+	http.HandleFunc("/port", portHandler)
 	log.Fatal(http.ListenAndServe("0.0.0.0:8000", nil))
 }
 
@@ -35,5 +38,24 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "</html>")
+}
+
+func ipHandler(w http.ResponseWriter, r *http.Request) {
+	spew.Dump(r)
+
+	fmt.Fprintln(w, strings.Split(r.RemoteAddr, ":")[0])
+}
+
+func uaHandler(w http.ResponseWriter, r *http.Request) {
+	if len(r.Header["User-Agent"]) == 1 {
+		fmt.Fprintln(w, r.Header["User-Agent"][0])
+	}
+}
+
+
+func portHandler(w http.ResponseWriter, r *http.Request) {
+	if strings.Contains(r.RemoteAddr, ":") {
+		fmt.Fprintln(w, strings.Split(r.RemoteAddr, ":")[1])
+	}
 }
 
