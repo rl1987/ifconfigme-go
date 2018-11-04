@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -15,13 +16,19 @@ import (
 )
 
 func main() {
+	port := "0.0.0.0:8000"
+
+	if len(os.Args) == 2 {
+		port = os.Args[1]
+	}
+
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/ip", ipHandler)
 	http.HandleFunc("/ua", uaHandler)
 	http.HandleFunc("/port", portHandler)
 	http.HandleFunc("/json", jsonHandler)
 	http.HandleFunc("/xml", xmlHandler)
-	log.Fatal(http.ListenAndServe("0.0.0.0:8000", nil))
+	log.Fatal(http.ListenAndServe(port, nil))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
