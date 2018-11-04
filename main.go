@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"log"
@@ -19,6 +20,7 @@ func main() {
 	http.HandleFunc("/ua", uaHandler)
 	http.HandleFunc("/port", portHandler)
 	http.HandleFunc("/json", jsonHandler)
+	http.HandleFunc("/xml", xmlHandler)
 	log.Fatal(http.ListenAndServe("0.0.0.0:8000", nil))
 }
 
@@ -62,8 +64,7 @@ type UserInfo struct {
 	UserAgent string
 }
 
-func jsonHandler(w http.ResponseWriter, r *http.Request) {
-	spew.Dump(r)
+func userInfoFromRequest(r *http.Request) UserInfo {
 
 	var userInfo UserInfo
 
@@ -84,6 +85,14 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 		userInfo.UserAgent = userAgentHeader[0]
 	}
 
+	return userInfo
+}
+
+func jsonHandler(w http.ResponseWriter, r *http.Request) {
+	spew.Dump(r)
+
+	userInfo := userInfoFromRequest(r)
+
 	json, err := json.Marshal(&userInfo)
 	if err != nil {
 		spew.Dump(err)
@@ -91,6 +100,22 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := io.WriteString(w, string(json)); err != nil {
+		spew.Dump(err)
+	}
+}
+
+func xmlHandler(w http.ResponseWriter, r *http.Request) {
+	spew.Dump(r)
+
+	userInfo := userInfoFromRequest(r)
+
+	xml, err := xml.Marshal(&userInfo)
+	if err != nil {
+		spew.Dump(err)
+		return
+	}
+
+	if _, err := io.WriteString(w, string(xml)); err != nil {
 		spew.Dump(err)
 	}
 }
